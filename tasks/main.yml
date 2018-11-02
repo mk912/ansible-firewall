@@ -1,0 +1,16 @@
+---
+# tasks file for ansible-firewall
+- name: Ensure firewalld is installed.
+  yum: name=firewalld state=installed
+  register: is_firewalld
+
+- name: Ensure firewalld is started and enabled to start at boot.
+  service: name=firewalld state=started enabled=yes
+  when: is_firewalld is succeeded
+  register: is_started
+
+- name: Firewall settings
+  firewalld: service="{{ item.service }}" permanent="{{ item.permanent }}" state=enabled
+  with_items: "{{ firewalld_service_accept }}"
+  notify: restart firewalld
+  when: is_started is succeeded
