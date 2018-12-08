@@ -10,7 +10,13 @@
   register: is_started
 
 - name: Firewall settings
-  firewalld: service="{{ item.service }}" permanent="{{ item.permanent }}" state=enabled
+  firewalld:
+    port: "{{ item.port }}"
+    permanent: "{{ item.permanent }}"
+    state: enabled
   with_items: "{{ firewalld_service_accept }}"
-  notify: restart firewalld
+  notify: reload rules firewalld
   when: is_started is succeeded
+
+- name: restart firewalld
+  service: name=firewalld state=restarted enabled=yes
